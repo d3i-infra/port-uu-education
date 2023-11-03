@@ -1,64 +1,132 @@
+import logging
+import json
+import io
+
 import port.api.props as props
 from port.api.commands import (CommandSystemDonate, CommandUIRender)
+import port.whatsapp
 
-import pandas as pd
-import zipfile
+LOG_STREAM = io.StringIO()
 
+logging.basicConfig(
+    #stream=LOG_STREAM,  # comment this line if you want the logs in std out
+    level=logging.INFO,  # change to DEBUG for debugging logs
+    format="%(asctime)s --- %(name)s --- %(funcName)s --- %(levelname)s --- %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S%z",
+)
+
+LOGGER = logging.getLogger(__name__)
 
 def process(sessionId):
-    yield donate(f"{sessionId}-tracking", '[{ "message": "user entered script" }]')
+    LOGGER.info("Starting the donation flow")
+    yield donate_logs(f"{sessionId}-tracking")
 
-    platforms = ["Twitter", "Facebook", "Instagram", "Youtube"]
+    platforms = ["Whatsapp"]
 
     subflows = len(platforms)
     steps = 2
     step_percentage = (100/subflows)/steps
-
+    counter = 0
     # progress in %
     progress = 0
 
-    for index, platform in enumerate(platforms):
-        meta_data = []
-        meta_data.append(("debug", f"{platform}: start"))
+    selectedUsername = ""
 
-        # STEP 1: select the file
+    for _, platform in enumerate(platforms):
+
+        list_with_consent_form_tables = []
         progress += step_percentage
-        data = None
+        counter = counter + 1
+
         while True:
-            meta_data.append(("debug", f"{platform}: prompt file"))
             promptFile = prompt_file(platform, "application/zip, text/plain")
             fileResult = yield render_donation_page(platform, promptFile, progress)
             if fileResult.__type__ == 'PayloadString':
-                meta_data.append(("debug", f"{platform}: extracting file"))
-                extractionResult = doSomethingWithTheFile(platform, fileResult.value)
-                if extractionResult != 'invalid':
-                    meta_data.append(("debug", f"{platform}: extraction successful, go to consent form"))
-                    data = extractionResult
-                    break
+                LOGGER.info("Valid file payload")
+                yield donate_logs(f"{sessionId}-tracking")
+
+                df_with_chats = port.whatsapp.parse_chat(fileResult.value)
+
+                # If data extracted was successful
+                if not df_with_chats.empty:
+
+                    df_with_chats = port.whatsapp.remove_empty_chats(df_with_chats)
+                    group_name = port.whatsapp.extract_groupname(df_with_chats)
+                    list_with_users = port.whatsapp.extract_users(df_with_chats)
+                    list_with_users = list(set(list_with_users) - set([group_name]))
+
+                    if len(list_with_users) < 3:
+                        retry_result = yield render_donation_page(platform, retry_group_chat(), progress)
+                        if retry_result.__type__ == "PayloadTrue":
+                            continue
+                        else:
+                            break
+                    # Determine username upon first donation
+                    if selectedUsername == "":
+                        selection = yield prompt_radio_menu(platform, progress, list_with_users)
+                        # If user skips during this process, selectedUsername remains equal to ""
+                        if selection.__type__ == "PayloadString":
+                            selectedUsername = selection.value
+                        else:
+                            break
+
+                        df_with_chats = port.whatsapp.filter_username(df_with_chats, group_name)
+                        df_with_chats = port.whatsapp.anonymize_users(df_with_chats, list_with_users, selectedUsername)
+                        anonymized_users_list = [ f"Deelnemer {i + 1}" for i in range(len(list_with_users))]
+                        for user_name in anonymized_users_list:
+                            list_with_consent_form_tables.append(port.whatsapp.deelnemer_statistics_to_df(df_with_chats, user_name))
+
+                        break
+
+                # If not enter retry flow
                 else:
-                    meta_data.append(("debug", f"{platform}: prompt confirmation to retry file selection"))
                     retry_result = yield render_donation_page(platform, retry_confirmation(platform), progress)
-                    if retry_result.__type__ == 'PayloadTrue':
-                        meta_data.append(("debug", f"{platform}: skip due to invalid file"))
+                    if retry_result.__type__ == "PayloadTrue":
                         continue
                     else:
-                        meta_data.append(("debug", f"{platform}: retry prompt file"))
                         break
             else:
-                meta_data.append(("debug", f"{platform}: skip to next step"))
                 break
 
-        # STEP 2: ask for consent
         progress += step_percentage
-        if data is not None:
-            meta_data.append(("debug", f"{platform}: prompt consent"))
-            prompt = prompt_consent(platform, data, meta_data)
+
+        # This check should be here to account for the skip button being
+        # This button can be pressed at any moment
+        if len(list_with_consent_form_tables) > 0: 
+            # STEP 2: ask for consent
+            prompt = prompt_consent(list_with_consent_form_tables)
             consent_result = yield render_donation_page(platform, prompt, progress)
             if consent_result.__type__ == "PayloadJSON":
-                meta_data.append(("debug", f"{platform}: donate consent data"))
-                yield donate(f"{sessionId}-{platform}", consent_result.value)
+                yield donate(f"{sessionId}-{platform}-{counter}", consent_result.value)
+                LOGGER.info("Data donated: %s %s", platform, counter)
+                yield donate_logs(f"{sessionId}-tracking")
+            else:
+                LOGGER.info("Skipped ater reviewing consent: %s %s", platform, counter)
+                yield donate_logs(f"{sessionId}-tracking")
 
     yield render_end_page()
+
+
+def prompt_radio_menu(platform, progress, list_with_users):
+
+    title = props.Translatable({
+        "en": f"",
+        "nl": f""
+    })
+    description = props.Translatable({
+        "en": f"Please select your username",
+        "nl": f"Selecteer uw gebruikersnaam"
+    })
+    header = props.PropsUIHeader(props.Translatable({
+        "en": "Submit Whatsapp groupchat",
+        "nl": "Submit Whatsapp groupchat"
+    }))
+
+    radio_input = [{"id": index, "value": username} for index, username in enumerate(list_with_users)]
+    body = props.PropsUIPromptRadioInput(title, description, radio_input)
+    footer = props.PropsUIFooter(progress)
+    page = props.PropsUIPageDonation(platform, header, body, footer)
+    return CommandUIRender(page)
 
 
 def render_end_page():
@@ -68,13 +136,14 @@ def render_end_page():
 
 def render_donation_page(platform, body, progress):
     header = props.PropsUIHeader(props.Translatable({
-        "en": platform,
-        "nl": platform
+        "en": "CHAT CHAT CHAT",
+        "nl": "CHAT CHAT CHAT"
     }))
 
     footer = props.PropsUIFooter(progress)
     page = props.PropsUIPageDonation(platform, header, body, footer)
     return CommandUIRender(page)
+
 
 
 def retry_confirmation(platform):
@@ -93,51 +162,49 @@ def retry_confirmation(platform):
     return props.PropsUIPromptConfirm(text, ok, cancel)
 
 
-def prompt_file(platform, extensions):
+def retry_group_chat():
+    text = props.Translatable({
+        "en": f"Oeps we hebben minder dan 3 deelnemers gevonden, probeer opnieuw",
+        "nl": f"Oeps we hebben minder dan 3 deelnemers gevonden, probeer opnieuw"
+    })
+    ok = props.Translatable({
+        "en": "Try again",
+        "nl": "Probeer opnieuw"
+    })
+    cancel = props.Translatable({
+        "en": "Cancel",
+        "nl": "Cancel"
+    })
+    return props.PropsUIPromptConfirm(text, ok, cancel)
+
+
+def prompt_file(_, extensions):
+
     description = props.Translatable({
-        "en": f"Please follow the download instructions and choose the file that you stored on your device. Click “Skip” at the right bottom, if you do not have a {platform} file. ",
-        "nl": f"Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat. Als u geen {platform} bestand heeft klik dan op “Overslaan” rechts onder."
+        "en": f"Please follow the download instructions and choose the file that you stored on your device.",
+        "nl": f"Please follow the download instructions and choose the file that you stored on your device."
     })
 
     return props.PropsUIPromptFileInput(description, extensions)
 
 
-def doSomethingWithTheFile(platform, filename):
-    return extract_zip_contents(filename)
 
+def prompt_consent(list_with_consent_form_tables):
 
-def extract_zip_contents(filename):
-    names = []
-    try:
-        file = zipfile.ZipFile(filename)
-        data = []
-        for name in file.namelist():
-            names.append(name)
-            info = file.getinfo(name)
-            data.append((name, info.compress_size, info.file_size))
-        return data
-    except zipfile.error:
-        return "invalid"
-
-
-def prompt_consent(id, data, meta_data):
-
-    table_title = props.Translatable({
-        "en": "Zip file contents",
-        "nl": "Inhoud zip bestand"
-    })
-
-    log_title = props.Translatable({
-        "en": "Log messages",
-        "nl": "Log berichten"
-    })
-
-    data_frame = pd.DataFrame(data, columns=["filename", "compressed size", "size"])
-    table = props.PropsUIPromptConsentFormTable("zip_content", table_title, data_frame)
-    meta_frame = pd.DataFrame(meta_data, columns=["type", "message"])
-    meta_table = props.PropsUIPromptConsentFormTable("log_messages", log_title, meta_frame)
-    return props.PropsUIPromptConsentForm([table], [meta_table])
+    table_list = [table for table in list_with_consent_form_tables if table is not None]
+    return props.PropsUIPromptConsentForm(table_list, [])
 
 
 def donate(key, json_string):
     return CommandSystemDonate(key, json_string)
+
+
+def donate_logs(key):
+    log_string = LOG_STREAM.getvalue()  # read the log stream
+
+    if log_string:
+        log_data = log_string.split("\n")
+    else:
+        log_data = ["no logs"]
+
+    return donate(key, json.dumps(log_data))

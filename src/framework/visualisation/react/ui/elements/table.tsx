@@ -391,7 +391,7 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
           <SearchBar placeholder={copy.searchPlaceholder} onSearch={(query) => handleSearch(query)} />
         </div>
       </div>
-      <div className={`flex flex-col gap-4 justify-center h-full ${display('table')}`}>
+      <div className={`flex flex-col gap-4 justify-center full ${display('table')}`}>
         <table className='text-grey1 table-fixed divide-y divide-grey4'>
           <thead>
             {renderHeadRow(head)}
@@ -409,20 +409,6 @@ export const Table = ({ id, head, body, readOnly = false, pageSize = 7, locale, 
       </div>
       <div className={`flex flex-col justify-center items-center w-full h-table bg-grey6 ${display('noResults')}`}>
         <Title3 text={copy.noResults} color='text-grey3' margin='' />
-      </div>
-      <div className={`flex flex-row items-center gap-6 mt-2 h-8 ${body.rows.length === 0 ? 'hidden' : ''} `}>
-        <div className='flex flex-row gap-4 items-center'>
-          <CheckBox id='edit' selected={state.edit} onSelect={handleEditToggle} />
-          <Label text={copy.edit} margin='mt-1px' />
-        </div>
-        <div className={`${display('delete')} mt-1px`}>
-          <IconLabelButton label={copy.delete} color='text-delete' icon={DeleteSvg} onClick={handleDeleteSelected} />
-        </div>
-        <div className='flex-grow' />
-        <Label text={copy.deleted} />
-        <div className={`${display('undo')}`}>
-          <IconLabelButton label={copy.undo} color='text-primary' icon={UndoSvg} onClick={handleUndo} />
-        </div>
       </div>
     </>
   )
