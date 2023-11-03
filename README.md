@@ -4,6 +4,12 @@
   </a>
 </p>
 
+# Data donation study for educational purposes at the UU
+
+This respository contains a data donation study that will be used during a course at the UU about new methods of data collection.
+It contains scripts that create summary statistics from a whatsapp group chat.
+
+
 # Port: A frontend for data donation
 
 Port is a research tool that enables individuals to donate their digital trace data for academic research in a secure, transparent, and privacy-preserving way. 
