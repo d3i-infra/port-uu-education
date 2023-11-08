@@ -136,8 +136,8 @@ def render_end_page():
 
 def render_donation_page(platform, body, progress):
     header = props.PropsUIHeader(props.Translatable({
-        "en": "CHAT CHAT CHAT",
-        "nl": "CHAT CHAT CHAT"
+        "en": "Whatsapp Group Chat",
+        "nl": "Whatsapp Group Chat"
     }))
 
     footer = props.PropsUIFooter(progress)
