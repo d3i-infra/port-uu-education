@@ -39,11 +39,11 @@ export const RadioInput = (props: Props): JSX.Element => {
 
   function handleConfirm (): void {
     if (!waiting) {
-        setWaiting(true)
-        const item = items.at(selectedId)
-        if (item !== undefined) {
-          resolve?.({ __type__: 'PayloadString', value: item.value })
-        }
+      setWaiting(true)
+      const item = items.at(selectedId)
+      if (item !== undefined) {
+        resolve?.({ __type__: 'PayloadString', value: item.value })
+      }
     }
   }
 
