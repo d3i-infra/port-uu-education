@@ -12,11 +12,12 @@ var __assign = (this && this.__assign) || function () {
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import TextBundle from '../../../../text_bundle';
 import { Translator } from '../../../../translator';
-import { isPropsUIPromptConfirm, isPropsUIPromptConsentForm, isPropsUIPromptFileInput, isPropsUIPromptRadioInput } from '../../../../types/prompts';
+import { isPropsUIPromptConfirm, isPropsUIPromptConsentForm, isPropsUIPromptFileInput, isPropsUIPromptRadioInput, isPropsUIPromptQuestionnaire } from '../../../../types/prompts';
 import { ForwardButton } from '../elements/button';
 import { Title1 } from '../elements/text';
 import { Confirm } from '../prompts/confirm';
 import { ConsentForm } from '../prompts/consent_form';
+import { Questionnaire } from '../prompts/questionnaire';
 import { FileInput } from '../prompts/file_input';
 import { RadioInput } from '../prompts/radio_input';
 import { Footer } from './templates/footer';
@@ -42,6 +43,9 @@ export var DonationPage = function (props) {
         }
         if (isPropsUIPromptRadioInput(body)) {
             return _jsx(RadioInput, __assign({}, body, context));
+        }
+        if (isPropsUIPromptQuestionnaire(body)) {
+            return _jsx(Questionnaire, __assign({}, body, context));
         }
         throw new TypeError('Unknown body type');
     }

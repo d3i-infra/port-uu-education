@@ -222,3 +222,23 @@ export interface Translatable {
     };
 }
 export declare function isTranslatable(arg: any): arg is Translatable;
+export interface PropsUIQuestionMultipleChoice {
+    __type__: 'PropsUIQuestionMultipleChoice';
+    id: number;
+    question: Text;
+    choices: Text[];
+}
+export declare function isPropsUIQuestionMultipleChoice(arg: any): arg is PropsUIQuestionMultipleChoice;
+export interface PropsUIQuestionMultipleChoiceCheckbox {
+    __type__: 'PropsUIQuestionMultipleChoiceCheckbox';
+    id: number;
+    question: Text;
+    choices: Text[];
+}
+export declare function isPropsUIQuestionMultipleChoiceCheckbox(arg: any): arg is PropsUIQuestionMultipleChoiceCheckbox;
+export interface PropsUIQuestionOpen {
+    __type__: 'PropsUIQuestionOpen';
+    id: number;
+    question: Text;
+}
+export declare function isPropsUIQuestionOpen(arg: any): arg is PropsUIQuestionOpen;

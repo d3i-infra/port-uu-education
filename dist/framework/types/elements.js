@@ -140,3 +140,12 @@ export function isText(arg) {
 export function isTranslatable(arg) {
     return isLike(arg, ['translations']);
 }
+export function isPropsUIQuestionMultipleChoice(arg) {
+    return isInstanceOf(arg, 'PropsUIQuestionMultipleChoice', ['id', 'question', 'choices']);
+}
+export function isPropsUIQuestionMultipleChoiceCheckbox(arg) {
+    return isInstanceOf(arg, 'PropsUIQuestionMultipleChoiceCheckbox', ['id', 'question', 'choices']);
+}
+export function isPropsUIQuestionOpen(arg) {
+    return isInstanceOf(arg, 'PropsUIQuestionOpen', ['id', 'question']);
+}

@@ -1,5 +1,5 @@
-import { PropsUIRadioItem, Text } from './elements';
-export declare type PropsUIPrompt = PropsUIPromptFileInput | PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptConfirm;
+import { PropsUIRadioItem, PropsUIQuestionMultipleChoice, Text } from './elements';
+export declare type PropsUIPrompt = PropsUIPromptFileInput | PropsUIPromptRadioInput | PropsUIPromptConsentForm | PropsUIPromptQuestionnaire | PropsUIPromptConfirm;
 export declare function isPropsUIPrompt(arg: any): arg is PropsUIPrompt;
 export interface PropsUIPromptConfirm {
     __type__: 'PropsUIPromptConfirm';
@@ -35,3 +35,9 @@ export interface PropsUIPromptConsentFormTable {
     data_frame: any;
 }
 export declare function isPropsUIPromptConsentFormTable(arg: any): arg is PropsUIPromptConsentFormTable;
+export interface PropsUIPromptQuestionnaire {
+    __type__: 'PropsUIPromptQuestionnaire';
+    questions: PropsUIQuestionMultipleChoice[];
+    description: Text;
+}
+export declare function isPropsUIPromptQuestionnaire(arg: any): arg is PropsUIPromptQuestionnaire;

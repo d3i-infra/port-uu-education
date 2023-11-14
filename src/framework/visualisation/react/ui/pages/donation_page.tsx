@@ -4,12 +4,19 @@ import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
 import { Translatable } from '../../../../types/elements'
 import { PropsUIPageDonation } from '../../../../types/pages'
-import { isPropsUIPromptConfirm, isPropsUIPromptConsentForm, isPropsUIPromptFileInput, isPropsUIPromptRadioInput } from '../../../../types/prompts'
+import { 
+    isPropsUIPromptConfirm, 
+    isPropsUIPromptConsentForm, 
+    isPropsUIPromptFileInput, 
+    isPropsUIPromptRadioInput, 
+    isPropsUIPromptQuestionnaire 
+} from '../../../../types/prompts'
 import { ReactFactoryContext } from '../../factory'
 import { ForwardButton } from '../elements/button'
 import { Title1 } from '../elements/text'
 import { Confirm } from '../prompts/confirm'
 import { ConsentForm } from '../prompts/consent_form'
+import { Questionnaire } from '../prompts/questionnaire'
 import { FileInput } from '../prompts/file_input'
 import { RadioInput } from '../prompts/radio_input'
 import { Footer } from './templates/footer'
@@ -40,8 +47,12 @@ export const DonationPage = (props: Props): JSX.Element => {
     if (isPropsUIPromptRadioInput(body)) {
       return <RadioInput {...body} {...context} />
     }
+    if (isPropsUIPromptQuestionnaire(body)) {
+      return <Questionnaire {...body} {...context} />
+    }
     throw new TypeError('Unknown body type')
   }
+
 
   function handleSkip (): void {
     resolve?.({ __type__: 'PayloadFalse', value: false })

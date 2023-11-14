@@ -2,6 +2,7 @@ import { isInstanceOf } from '../helpers';
 export function isPropsUIPrompt(arg) {
     return isPropsUIPromptFileInput(arg) ||
         isPropsUIPromptRadioInput(arg) ||
+        isPropsUIPromptQuestionnaire(arg) ||
         isPropsUIPromptConsentForm(arg);
 }
 export function isPropsUIPromptConfirm(arg) {
@@ -18,4 +19,7 @@ export function isPropsUIPromptConsentForm(arg) {
 }
 export function isPropsUIPromptConsentFormTable(arg) {
     return isInstanceOf(arg, 'PropsUIPromptConsentFormTable', ['id', 'title', 'description', 'data_frame']);
+}
+export function isPropsUIPromptQuestionnaire(arg) {
+    return isInstanceOf(arg, 'PropsUIPromptQuestionnaire', ['questions', 'description']);
 }
