@@ -55,27 +55,24 @@ export const SplashScreen = (props: Props): JSX.Element => {
     <>
       <div className='text-bodylarge font-body text-grey1'>
         <div className='mb-4 text-bodylarge font-body text-grey1'>
-          You are about to start the process of donating your data to a research institute. The data that we ask you to donate will be used for academic research to gain insight into how platforms work.
+            You are about to start the process of donating your data to Utrecht University for “Social Research in the Digital Age”. The data that we ask you to donate will be used in the context of this course.
         </div>
         <div className='mb-4 text-bodylarge font-body text-grey1'>
-          We will walk you through this process step by step. During this process no data is stored or sent to a server. You can delete rows from the data before donating. Data will only be donated and stored when you click the button “Yes, donate” on the page that shows your data.
+          During this process no data is stored or sent to a server. Data will only be donated and stored when you click the button “Yes, donate” on the page that shows your data.
         </div>
         <div className='mb-6 text-bodylarge font-body text-grey1'>
           By clicking the button “<span className='font-bodybold'>Yes, donate</span>”:
         </div>
         <div className='flex flex-col gap-3 mb-6'>
           <Bullet>
-            <div>you fully and voluntarily agree to donate your data for this research.</div>
+            <div>You fully and voluntarily agree to donate your data for this course.</div>
           </Bullet>
           <Bullet>
-            <div>you are aware that when your data is used for academic publications, or made publicly available in some other form, this will be anonymous.</div>
+            <div>You are aware that the data you donate will be available to your fellow students and the teachers in this course.</div>
           </Bullet>
           <Bullet>
-            <div>you are aware that you have the right to withdraw your permission.</div>
+            <div>You are aware that you have the right to withdraw your permission.</div>
           </Bullet>
-        </div>
-        <div className='mb-10'>
-          This website keeps track of your activity - for example on which pages of this website you click - as part of this research. More information can be found on our privacy page.
         </div>
       </div>
     </>
@@ -84,28 +81,25 @@ export const SplashScreen = (props: Props): JSX.Element => {
   const nlDescription: JSX.Element = (
     <>
       <div className='text-bodylarge font-body text-grey1'>
-        <div className='mb-4'>
-          U kunt zo uw gegevens gaan doneren voor een onderzoek van een onderzoeksinstituut. De gegevens die we u vragen te doneren worden gebruikt voor wetenschappelijke onderzoek om inzicht te krijgen in de werkwijze van sociale media.
+        <div className='mb-4 text-bodylarge font-body text-grey1'>
+            You are about to start the process of donating your data to Utrecht University for “Social Research in the Digital Age”. The data that we ask you to donate will be used in the context of this course.
         </div>
-        <div className='mb-4'>
-          We leggen u stap voor stap wat er van u verwacht wordt. Tijdens deze stappen worden geen gegevens opgeslagen of naar een server verstuurd. U kunt zelf rijen uit uw data verwijderen die u niet wilt doneren. Pas als u de vraag krijgt of u de gegevens wilt doneren en u op de knop “Ja, doneer” klikt, worden de gegevens gedoneerd en opgeslagen.
+        <div className='mb-4 text-bodylarge font-body text-grey1'>
+          During this process no data is stored or sent to a server. Data will only be donated and stored when you click the button “Yes, donate” on the page that shows your data.
         </div>
-        <div className='mb-4'>
-          Door op de knop “<span className='font-bodybold'>Ja, doneer</span>” te klikken:
+        <div className='mb-6 text-bodylarge font-body text-grey1'>
+          By clicking the button “<span className='font-bodybold'>Yes, donate</span>”:
         </div>
         <div className='flex flex-col gap-3 mb-6'>
           <Bullet>
-            <div>Geeft u volledig en vrijwillig toestemming om uw data te doneren voor dit onderzoek.'</div>
+            <div>You fully and voluntarily agree to donate your data for this course.</div>
           </Bullet>
           <Bullet>
-            <div>Geeft u aan te weten dat als uw gegevens worden gebruikt in wetenschappelijke publicaties, of deze op een andere manier openbaar worden gemaakt, dit dan anoniem gebeurt.</div>
+            <div>You are aware that the data you donate will be available to your fellow students and the teachers in this course.</div>
           </Bullet>
           <Bullet>
-            <div>Geeft u aan te weten dat u het recht hebt om uw toestemming binnen in te trekken.</div>
+            <div>You are aware that you have the right to withdraw your permission.</div>
           </Bullet>
-        </div>
-        <div className='mb-10'>
-          Deze website houdt ook uw activiteiten bij – bijvoorbeeld op welke pagina’s van deze website u klikt – als deel van dit onderzoek. U kunt meer informatie op onze privacy pagina vinden.
         </div>
       </div>
     </>
