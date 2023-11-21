@@ -1,6 +1,7 @@
 import logging
 import json
 import io
+import uuid
 
 import pandas as pd
         
@@ -22,8 +23,8 @@ LOGGER = logging.getLogger(__name__)
 
 def process(session_id):
     LOGGER.info("Starting the donation flow")
-    yield donate_logs(f"{session_id}-tracking")
 
+    id = str(uuid.uuid4())
     steps = 5
     step_percentage = 100/steps
     # progress in %
@@ -92,14 +93,14 @@ def process(session_id):
         prompt = prompt_consent(list_with_consent_form_tables)
         consent_result = yield render_donation_page(platform, prompt, progress)
         if consent_result.__type__ == "PayloadJSON":
-            yield donate(platform, consent_result.value)
+            yield donate(f"{id}-whatsapp-group-chat.json", consent_result.value)
 
 
     # Short Questionnaire
     render_questionnaire_results = yield render_questionnaire(progress)
 
     if render_questionnaire_results.__type__ == "PayloadJSON":
-        yield donate("questionnaire_results", render_questionnaire_results.value)
+        yield donate(f"{id}-questionnaire-results.json", render_questionnaire_results.value)
 
     # Whatsapp account info processing
     #
@@ -145,7 +146,7 @@ def process(session_id):
         consent_result = yield render_donation_page(platform_name, prompt, progress)
 
         if consent_result.__type__ == "PayloadJSON":
-            yield donate(platform_name, consent_result.value)
+            yield donate(f"{id}-whatsapp-account-info.json", consent_result.value)
 
 
     yield render_end_page()
